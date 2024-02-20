@@ -1,26 +1,26 @@
 #include "AllHead.h"
 #include "18B20.h"
 
-//IO²Ù×÷
+//IOæ“ä½œ
 #define DS18B20_DQ_H_1					(HT_GPIOB->PTSET |= (1<<4))
 #define DS18B20_DQ_H_2					(HT_GPIOB->PTSET |= (1<<5))
 #define DS18B20_DQ_L_1                  (HT_GPIOB->PTCLR |= (1<<4))
-#define DS18B20_DQ_L_2                  (HT_GPIOB->PTCLR |= (1<<4))
+#define DS18B20_DQ_L_2                  (HT_GPIOB->PTCLR |= (1<<5))
 #define DS18B20_DQ_ReadPin_1            (HT_GPIOB->PTDAT & (1<<4))
 #define DS18B20_DQ_ReadPin_2            (HT_GPIOB->PTDAT & (1<<5))
 
 
-//FIXME:ÔÝÊ±µ¥¶ÀÅäÖÃPB4ºÍPB5
+//FIXME:æš‚æ—¶å•ç‹¬é…ç½®PB4å’ŒPB5
 void DS18B20_DQ_DDR(BYTE ddr)
 {
     
-    if (ddr == 0)//ÊäÈë
+    if (ddr == 0)//è¾“å…¥
     {
-        HT_GPIOB->PTDIR &= 0xFFCF;//0:ÊäÈë
+        HT_GPIOB->PTDIR &= 0xFFCF;//0:è¾“å…¥
     }
-    else if (ddr == 1)//Êä³ö
+    else if (ddr == 1)//è¾“å‡º
     {
-        HT_GPIOB->PTDIR |= 0x0030;//1£ºÊä³ö
+        HT_GPIOB->PTDIR |= 0x0030;//1ï¼šè¾“å‡º
     }
     else
     {
@@ -30,141 +30,141 @@ void DS18B20_DQ_DDR(BYTE ddr)
 }
 
 /*
-º¯ÊýÃû£ºDS18B20_reset
-¹¦ÄÜ£º³õÊ¼»¯DS18B20
-ÊäÈë£º
-Êä³ö£º
-·µ»ØÖµ£º³õÊ¼»¯³É¹¦Îª0£¬²»³É¹¦Îª1
+å‡½æ•°åï¼šDS18B20_reset
+åŠŸèƒ½ï¼šåˆå§‹åŒ–DS18B20
+è¾“å…¥ï¼š
+è¾“å‡ºï¼š
+è¿”å›žå€¼ï¼šåˆå§‹åŒ–æˆåŠŸä¸º0ï¼Œä¸æˆåŠŸä¸º1
 */
 BYTE DS18B20_reset(void) 
 {
-    //´®¿ÚµçÆ½
+    //ä¸²å£ç”µå¹³
     BYTE  Serial_Level = 0;
-    //¸Ä±äDQÒý½ÅÎªÊä³ö
+    //æ”¹å˜DQå¼•è„šä¸ºè¾“å‡º
     DS18B20_DQ_DDR(1);
-    //ÏÈÖÃ¸ß
+    //å…ˆç½®é«˜
     DS18B20_DQ_H_1;
-    //ÑÓÊ±700us£¬Ê¹×ÜÏßÎÈ¶¨
+    //å»¶æ—¶700usï¼Œä½¿æ€»çº¿ç¨³å®š
     api_Delay100us(7); 
-    //¸´Î»Âö³å£¬µÍµçÎ»
+    //å¤ä½è„‰å†²ï¼Œä½Žç”µä½
     DS18B20_DQ_L_1;
-    //±£³ÖÖÁÉÙ480us,ÕâÀï500us
+    //ä¿æŒè‡³å°‘480us,è¿™é‡Œ500us
     api_Delay100us(5); 
-    //¸Ä±äDQÒý½ÅÎªÊäÈë
+    //æ”¹å˜DQå¼•è„šä¸ºè¾“å…¥
     DS18B20_DQ_DDR(0);
-    //À­¸ßÊý¾ÝÏß£¬ÊÍ·Å×ÜÏß
+    //æ‹‰é«˜æ•°æ®çº¿ï¼Œé‡Šæ”¾æ€»çº¿
     DS18B20_DQ_H_1;
-    //µÈ´ý15-60us£¬ÕâÀï33us
+    //ç­‰å¾…15-60usï¼Œè¿™é‡Œ33us
     api_Delay10us(3); 
-    //µÈ´ý35us£¬ÕâÀï33us
+    //ç­‰å¾…35usï¼Œè¿™é‡Œ33us
     api_Delay10us(3);  
-    //ñöÌý£¬ÅÐ¶ÏÓÐÃ»ÓÐ³õÊ¼»¯³É¹¦(DS18B20ÓÐÃ»ÓÐ·¢ËÍÓ¦´ðÂö³å)
+    //è†å¬ï¼Œåˆ¤æ–­æœ‰æ²¡æœ‰åˆå§‹åŒ–æˆåŠŸ(DS18B20æœ‰æ²¡æœ‰å‘é€åº”ç­”è„‰å†²)
     Serial_Level = DS18B20_DQ_ReadPin_1; 
-    //ÖÁÉÙ480usºó½øÈë½ÓÊÕ×´Ì¬£¬ÕâÀï500us
+    //è‡³å°‘480usåŽè¿›å…¥æŽ¥æ”¶çŠ¶æ€ï¼Œè¿™é‡Œ500us
     api_Delay100us(5);
     DS18B20_DQ_H_1;
     return Serial_Level;
 }
 
 /*
-º¯ÊýÃû£ºDS18B20_Wbyte
-¹¦ÄÜ£ºÐ´Ò»¸ö×Ö½Ú
-ÊäÈë£ºuint8_t xbyte
-Êä³ö£º
-·µ»ØÖµ£º
+å‡½æ•°åï¼šDS18B20_Wbyte
+åŠŸèƒ½ï¼šå†™ä¸€ä¸ªå­—èŠ‚
+è¾“å…¥ï¼šuint8_t xbyte
+è¾“å‡ºï¼š
+è¿”å›žå€¼ï¼š
 */
 void DS18B20_Wbyte(BYTE Command_To_Send)
 {
-    //i:Ñ­»·¿ØÖÆ±äÁ¿£¬wbit:È¡Î»ÔËËã±äÁ¿
+    //i:å¾ªçŽ¯æŽ§åˆ¶å˜é‡ï¼Œwbit:å–ä½è¿ç®—å˜é‡
     BYTE i = 0;
     BYTE wbit = 0;
-    //¸Ä±äDQÒý½ÅÎªÊä³ö
+    //æ”¹å˜DQå¼•è„šä¸ºè¾“å‡º
     DS18B20_DQ_DDR(1);
-    //8´ÎÑ­»·ÊµÏÖÖðÎ»Ð´Èë
+    //8æ¬¡å¾ªçŽ¯å®žçŽ°é€ä½å†™å…¥
     for(i = 0; i < 8; i++)
     {
-        //ÏÈÈ¡µÍÎ»
+        //å…ˆå–ä½Žä½
         wbit = Command_To_Send & 0x01;
-        //Ð´1
+        //å†™1
         if(wbit)
         {
             DS18B20_DQ_H_1;
-            //À­µÍ×ÜÏß
+            //æ‹‰ä½Žæ€»çº¿
             DS18B20_DQ_L_1;
-            //ÑÓÊ±15us
-            api_Delay10us(1);//Õâ¿ÉÄÜ»áÓÐµãÎÊÌâ
-            //×ÜÏßÐ´1
+            //å»¶æ—¶15us
+            api_Delay10us(1);//è¿™å¯èƒ½ä¼šæœ‰ç‚¹é—®é¢˜
+            //æ€»çº¿å†™1
             DS18B20_DQ_H_1;
-            //ÑÓÊ±15us
+            //å»¶æ—¶15us
             api_Delay10us(1);
-            //±£³Ö¸ßµçÆ½
+            //ä¿æŒé«˜ç”µå¹³
             DS18B20_DQ_H_1;
             //delay_us(4);
             api_Delay10us(1);
         }
-        //Ð´0
+        //å†™0
         else
         {
             DS18B20_DQ_H_1;
-            //×ÜÏßÀ­µÍ
+            //æ€»çº¿æ‹‰ä½Ž
             DS18B20_DQ_L_1;
-            //ÑÓÊ±15us
+            //å»¶æ—¶15us
             api_Delay10us(1);
-            //×ÜÏßÐ´0
+            //æ€»çº¿å†™0
             DS18B20_DQ_L_1;
-            //ÑÓÊ±15us
+            //å»¶æ—¶15us
             api_Delay10us(3);
-            //±£³Ö¸ßµçÆ½
+            //ä¿æŒé«˜ç”µå¹³
             DS18B20_DQ_H_1;
             api_Delay10us(1);
         }
-        //Command_To_SendÓÒÒÆÒ»Î»
+        //Command_To_Sendå³ç§»ä¸€ä½
         Command_To_Send = Command_To_Send >> 1;
     }
 }
 
 /*******************************************************************************
-º¯ÊýÃû£ºDS18B20_Rbit
-¹¦ÄÜ£º´ÓDS18B20¶ÁÒ»¸öÎ»
-ÊäÈë£º
-Êä³ö£º
-·µ»ØÖµ£º¶ÁÈ¡µ½µÄÎ»
-±¸×¢£º
+å‡½æ•°åï¼šDS18B20_Rbit
+åŠŸèƒ½ï¼šä»ŽDS18B20è¯»ä¸€ä¸ªä½
+è¾“å…¥ï¼š
+è¾“å‡ºï¼š
+è¿”å›žå€¼ï¼šè¯»å–åˆ°çš„ä½
+å¤‡æ³¨ï¼š
 *******************************************************************************/
 BYTE DS18B20_Rbit(void)
 {
-    //rbitÊÇ×îÖÕÎ»Êý¾Ý£¬Serial_LevelÊÇÈ¡×´Ì¬±äÁ¿
+    //rbitæ˜¯æœ€ç»ˆä½æ•°æ®ï¼ŒSerial_Levelæ˜¯å–çŠ¶æ€å˜é‡
     BYTE rbit = 0;
     BYTE i = 0;
     BYTE Serial_Level = 0;
 
-    //¸Ä±äDQÎªÊä³öÄ£Ê½
+    //æ”¹å˜DQä¸ºè¾“å‡ºæ¨¡å¼
     DS18B20_DQ_DDR(1);
     DS18B20_DQ_H_1;
-    //×ÜÏßÐ´0
+    //æ€»çº¿å†™0
     DS18B20_DQ_L_1;
-    //ÑÓÊ±1us
-    //api_Delay10us(1);//ÕâÀï¿ÉÄÜÓÐµãÎÊÌâ
+    //å»¶æ—¶1us
+    //api_Delay10us(1);//è¿™é‡Œå¯èƒ½æœ‰ç‚¹é—®é¢˜
     api_DelayNop(12);
 
 
-    //ÊÍ·Å×ÜÏß
+    //é‡Šæ”¾æ€»çº¿
     DS18B20_DQ_H_1;
-    //¸Ä±äDQÎªÊäÈëÄ£Ê½
+    //æ”¹å˜DQä¸ºè¾“å…¥æ¨¡å¼
     DS18B20_DQ_DDR(0);
     api_DelayNop(12);
 
-    //»ñÈ¡×ÜÏßµçÆ½×´Ì¬
+    //èŽ·å–æ€»çº¿ç”µå¹³çŠ¶æ€
     Serial_Level = DS18B20_DQ_ReadPin_1;
-    //Èç¹ûÊÇ1£¬Ôò·µ»Ø0x80£¬·ñÔò·µ»Ø0x00
+    //å¦‚æžœæ˜¯1ï¼Œåˆ™è¿”å›ž0x80ï¼Œå¦åˆ™è¿”å›ž0x00
     if (Serial_Level)
     {
         rbit = 0x80;
     }
 
-    //ÊÍ·Å×ÜÏß
+    //é‡Šæ”¾æ€»çº¿
     DS18B20_DQ_H_1;       
-    //ÑÓÊ±´óÔ¼60us
+    //å»¶æ—¶å¤§çº¦60us
     api_Delay10us(6);
 
     return rbit;
@@ -172,60 +172,60 @@ BYTE DS18B20_Rbit(void)
 
 
 /*******************************************************************************
-º¯ÊýÃû£ºDS18B20_Rbyte
-¹¦ÄÜ£º´ÓDS18B20¶ÁÒ»¸ö×Ö½Ú
-ÊäÈë£º
-Êä³ö£º
-·µ»ØÖµ£º¶ÁÈ¡µ½µÄ×Ö½Ú
-±¸×¢£º
+å‡½æ•°åï¼šDS18B20_Rbyte
+åŠŸèƒ½ï¼šä»ŽDS18B20è¯»ä¸€ä¸ªå­—èŠ‚
+è¾“å…¥ï¼š
+è¾“å‡ºï¼š
+è¿”å›žå€¼ï¼šè¯»å–åˆ°çš„å­—èŠ‚
+å¤‡æ³¨ï¼š
 *******************************************************************************/
 BYTE DS18B20_Rbyte(void)
 {
-    //rbyte£º×îÖÕµÃµ½µÄ×Ö½Ú
-    //tempbit£ºÖÐ¼äÔËËã±äÁ¿
+    //rbyteï¼šæœ€ç»ˆå¾—åˆ°çš„å­—èŠ‚
+    //tempbitï¼šä¸­é—´è¿ç®—å˜é‡
     BYTE rbyte = 0;
     BYTE i = 0;
     BYTE tempbit = 0;
 
     for (i = 0; i < 8; i++)
     {
-        //¶ÁÈ¡Î»
+        //è¯»å–ä½
         tempbit = DS18B20_Rbit();
-        //ÓÒÒÆÊµÏÖ¸ßµÍÎ»ÅÅÐò
+        //å³ç§»å®žçŽ°é«˜ä½Žä½æŽ’åº
         rbyte = rbyte >> 1;
-        //»òÔËËãÒÆÈëÊý¾Ý
+        //æˆ–è¿ç®—ç§»å…¥æ•°æ®
         rbyte = rbyte|tempbit;
     }
     return rbyte;
 }
 
-//¶ÁÈ¡ÎÂ¶ÈµÄÖ÷³ÌÐò
+//è¯»å–æ¸©åº¦çš„ä¸»ç¨‹åº
 float ReadTemperature(void) 
 {
-    //Sign£º·ûºÅÎ»
-    //data£ºÎÂ¶ÈµÄÕûÊý²¿·Ö
+    //Signï¼šç¬¦å·ä½
+    //dataï¼šæ¸©åº¦çš„æ•´æ•°éƒ¨åˆ†
     BYTE Sign = 0;
     WORD data = 0;
     BYTE TempL = 0;
     BYTE TempH = 0;
     float Measured_Temperature = 0;
 
-    //DS18B20³õÊ¼»¯
+    //DS18B20åˆå§‹åŒ–
     DS18B20_reset();
-    //Ìø¹ý¶ÁÐòÁÐºÅ
+    //è·³è¿‡è¯»åºåˆ—å·
     DS18B20_Wbyte(0xcc);
-    //Æô¶¯ÎÂ¶È×ª»»
+    //å¯åŠ¨æ¸©åº¦è½¬æ¢
     DS18B20_Wbyte(0x44);
-    //µÈ´ýÎÂ¶È×ª»»
+    //ç­‰å¾…æ¸©åº¦è½¬æ¢
     api_Delayms(750);
 
     DS18B20_reset();
     DS18B20_Wbyte(0xcc);
-    //¶ÁÎÂ¶È¼Ä´æÆ÷
+    //è¯»æ¸©åº¦å¯„å­˜å™¨
     DS18B20_Wbyte(0xbe); 
     TempL = DS18B20_Rbyte();
     TempH = DS18B20_Rbyte();
-    //·ûºÅÎ»Îª¸º
+    //ç¬¦å·ä½ä¸ºè´Ÿ
     if(TempH > 0x70)
     {
         TempL = ~TempL;
@@ -237,7 +237,7 @@ float ReadTemperature(void)
         Sign = 1;
     }
         
-    //ÕûÊý²¿·Ö
+    //æ•´æ•°éƒ¨åˆ†
     data = TempH;
     data <<=  8;
     data += TempL;
